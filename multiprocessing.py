@@ -24,7 +24,6 @@ class Builder:
         self.ymin = bbox[1]
         self.xmax = bbox[2]
         self.ymax = bbox[3]
-        os.mkdir('temp')
         os.mkdir('temp/{0}'.format(self.title))
         os.mkdir('temp/{0}/tiles'.format(self.title))
 
@@ -42,7 +41,7 @@ class Builder:
         """
 
         # The extraction part
-        _extract = 'gdalwarp -of PNG -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'.format(
+        _extract = 'gdalwarp -of PNG -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.png'.format(
             self.xmin, self.ymin, self.xmax, self.ymax, _scale / 10.0, _sample, _source, _scale)
         os.system(_extract)
 
@@ -85,8 +84,8 @@ if __name__ == '__main__':
 
     # Begin of the process
     try:
-
         pdfmap = Builder(bounds, mapname)
+        print(sc25)
         pdfmap.run(sc25, 2, 25, 'near')
         pdfmap.run(sc25, 1, 25, 'lanczos')
         pdfmap.run(sc100, 0, 100, 'lanczos')

@@ -5,17 +5,8 @@ import sys
 import zipfile
 
 from PIL import Image
+
 Image.MAX_IMAGE_PIXELS = None
-
-path = os.path.dirname(os.path.realpath(__file__))
-vrt_25 = "/media/elementary/DATB/IGN/ORIGINAUX/2014/SC25_TOUR_TIF_LZW_LAMB93/fr_25k.vrt"
-vrt_100 = "/media/elementary/DATB/IGN/ORIGINAUX/2014/SC25_TOUR_TIF_LZW_LAMB93/fr_25k.vrt"
-
-mapname = 'forcalquier'
-xmin = 900000
-ymin = 6300000
-xmax = 950000
-ymax = 6350000
 
 
 def tiler(src, j, i, l, a, b, xend, yend):
@@ -25,7 +16,14 @@ def tiler(src, j, i, l, a, b, xend, yend):
 
 
 def level_renderer(level, scale, resampling, source):
-    print('\nExtraction au format TIFF de l\'échelle 1:{}.000'.format(scale))
+    """
+    :param level: pdfmaps level
+    :param scale: real scale
+    :param resampling: pixel resampling methode
+    :param source: current dataset source
+    :return:
+    """
+    print('\nExtracting level {0} @ 1:{1}.000 scale...'.format(level, scale))
     extraction = 'gdalwarp -q -of GTiff -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'.format(
         xmin, ymin, xmax, ymax, scale / 10.0, resampling, source, scale)
     os.system(extraction)
@@ -119,24 +117,33 @@ def cleaner():
 
 if __name__ == '__main__':
 
+    # General configuration
+    path = os.path.dirname(os.path.realpath(__file__))
+    volume = "/media/elementary/DATB"
+    vrt_25 = "{0}/IGN/ORIGINAUX/2014/SC25_TOUR_TIF_LZW_LAMB93/fr_25k.vrt".format(volume)
+    vrt_100 = "{0}/IGN/ORIGINAUX/2015/SCAN_100/PNG/fr_100k.vrt".format(volume)
+
+    # Run specific configuration
+    mapname = 'forcalquier'
+    xmin = 900000
+    ymin = 6300000
+    xmax = 950000
+    ymax = 6350000
+
     try:
         os.mkdir('temp/{0}'.format(mapname))
         os.mkdir('temp/{0}/tiles'.format(mapname))
 
-        level_renderer(2, 25, 'near',vrt_25)
-        level_renderer(1, 50, 'lanczos',vrt_25)
-        level_renderer(0, 100, 'lanczos',vrt_100)
+        level_renderer(2, 25, 'near', vrt_25)
+        level_renderer(1, 50, 'lanczos', vrt_25)
+        level_renderer(0, 100, 'lanczos', vrt_100)
 
         georeferencer()
         thumbler()
         packager()
-    # cleaner()
+        # cleaner()
 
     except KeyboardInterrupt:
         sys.exit(1)
 
     print('\nC\'est fini !\n\n\n')
-
-        # for dirs in os.listdir('temp/'):
-        #     if os.path.isdir(dirs):
-        #         mapname = dirs

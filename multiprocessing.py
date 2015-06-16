@@ -5,7 +5,7 @@ __author__ = "linuxipho"
 import os
 import sys
 import zipfile
-from multiprocessing import Process
+#from multiprocessing import Process
 
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
@@ -33,6 +33,7 @@ class Builder:
     def render(self):
 
 
+    def extract
 
 
 
@@ -155,24 +156,23 @@ def cleaner():
     print('OK')
 
 
+
 if __name__ == '__main__':
 
-
-    mapname = "toulouse"
+    # User defined variables
+    mapname = 'toulouse'
     bbox = (700000, 6500000, 750000, 6550000)
-    builer = Builder(bbox, mapname)
 
+    # Advanced config
+    levels = 3  # 2 or 3
 
-
-
-
-
-
-
-
-
-
-
+    # Begin of the process
+    pdfmap = Builder(bbox, mapname)
+    pdfmap.extract()
+    pdfmap.render()
+    pdfmap.zip()
+    pdfmap.send()
+    pdfmap.clean()
 
 
 

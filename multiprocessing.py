@@ -5,16 +5,54 @@ __author__ = "linuxipho"
 import os
 import sys
 import zipfile
+from multiprocessing import Process
 
 from PIL import Image
-
 Image.MAX_IMAGE_PIXELS = None
+
+class Builder:
+    """The main class"""
+
+    def __init__(self, bbox, mapname):
+        """Initialize the area variables"""
+
+        self.xmin = bbox[0]
+        self.ymin = bbox[1]
+        self.xmax = bbox[2]
+        self.ymax = bbox[3]
+        self.path = os.path.dirname(os.path.realpath(__file__))
+
+
+    def _tile(self,level,):
+        """Internal methode which create the requested tile"""
+
+        extend = (j, i, j + xend, i + yend)
+        tile = src.crop(extend)
+        tile.save('temp/{}/tiles/{}x{}x{}.png'.format(mapname, l, a, b), options='optimize')
+
+    def render(self):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def tiler(src, j, i, l, a, b, xend, yend):
-    extend = (j, i, j + xend, i + yend)
-    tile = src.crop(extend)
-    tile.save('temp/{}/tiles/{}x{}x{}.png'.format(mapname, l, a, b), options='optimize')
+
 
 
 def level_renderer(level, scale, resampling, source):
@@ -118,6 +156,29 @@ def cleaner():
 
 
 if __name__ == '__main__':
+
+
+    mapname = "toulouse"
+    bbox = (700000, 6500000, 750000, 6550000)
+    builer = Builder(bbox, mapname)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # General configuration
     path = os.path.dirname(os.path.realpath(__file__))

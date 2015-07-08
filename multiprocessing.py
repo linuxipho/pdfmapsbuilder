@@ -41,9 +41,13 @@ class Builder:
         """
 
         # The extraction part
-        _extract = 'gdalwarp -of PNG -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.png'.format(
+        _extract = 'gdalwarp -of GTiff -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'.format(
             self.xmin, self.ymin, self.xmax, self.ymax, _scale / 10.0, _sample, _source, _scale)
         os.system(_extract)
+
+        # Conversion into PNG
+        _convert = 'gdal_translate -of PNG out{0}.tif out{0}.png'.format(_scale)
+        os.system(_convert)
 
         # The rendering part
         _raster = Image.open('temp/out{}.png'.format(_scale))
@@ -72,14 +76,14 @@ class Builder:
 if __name__ == '__main__':
 
     # User defined variables
-    mapname = 'test'
-    bounds = (700000, 6500000, 750000, 6550000)
+    mapname = 'st_michel'
+    bounds = (350000, 6830000, 390000, 6860000)
 
     # Advanced config
     path = os.path.dirname(os.path.realpath(__file__))
     volume = '/media/DATA'
-    sc25 = '{0}/SIG/IGN/2014/sc25.vrt'.format(volume)
-    sc100 = "{0}/SIG/IGN/2015/sc100.vrt".format(volume)
+    sc25 = '{0}/SIG/IGN/2014/25/sc25.vrt'.format(volume)
+    sc100 = "{0}/SIG/IGN/2015/100/sc100.vrt".format(volume)
     levels = 3  # 2 or 3
 
     # Begin of the process

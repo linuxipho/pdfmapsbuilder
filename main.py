@@ -119,9 +119,9 @@ if __name__ == '__main__':
 
     # General configuration
     path = os.path.dirname(os.path.realpath(__file__))
-    volume = "/media/elementary/DATB"
-    vrt_25 = "{0}/IGN/ORIGINAUX/2014/SC25_TOUR_TIF_LZW_LAMB93/fr_25k.vrt".format(volume)
-    vrt_100 = "{0}/IGN/ORIGINAUX/2015/SCAN_100/PNG/fr_100k.vrt".format(volume)
+    volume = "/media/Data"
+    vrt_25 = "{0}/IGN/scan25.vrt".format(volume)
+    vrt_100 = "{0}/IGN/scan100.vrt".format(volume)
 
     # Run specific configuration
     mapname = 'forcalquier'

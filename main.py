@@ -24,13 +24,13 @@ def level_renderer(level, scale, resampling, source):
     :return:
     """
     print('\nExtracting level {0} @ 1:{1}.000 scale...'.format(level, scale))
-    extraction = 'gdalwarp -q -of GTiff -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'.format(
-        xmin, ymin, xmax, ymax, scale / 10.0, resampling, source, scale)
+    extraction = 'gdalwarp -of GTiff -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'\
+        .format(xmin, ymin, xmax, ymax, scale / 10.0, resampling, source, scale)
     os.system(extraction)
     print('OK')
 
     print('\nConversion au format PNG...')
-    conversion = 'gdal_translate -q -of PNG -co ZLEVEL=1 temp/out{0}.tif temp/out{0}.png'.format(scale)
+    conversion = 'gdal_translate -of PNG -co ZLEVEL=1 temp/out{0}.tif temp/out{0}.png'.format(scale)
     os.system(conversion)
     print('OK')
 
@@ -83,19 +83,19 @@ def georeferencer():
 
 def thumbler():
     print('\nCréation de la miniature...')
-    os.chdir('/home/elementary/Documents/PDFMaps/temp/{}'.format(mapname))
+    os.chdir('{0}/temp/{1}'.format(path, mapname))
 
     img = Image.open('tiles/2x2x2.png')
-    extent = (0, 0, 64, 64)
+    extent = (0, 0, 128, 128)
     thumb = img.crop(extent)
-    thumb.save('thumb.png')
+    thumb.save('thumb.small.png')
     print('OK')
 
 
 def packager():
     print('\nCompression...')
-    os.chdir('/home/elementary/Documents/PDFMaps/temp/{}'.format(mapname))
-    archive_name = '../{}.zip'.format(mapname)
+    os.chdir('{0}/temp/{1}'.format(path, mapname))
+    archive_name = '../{0}.zip'.format(mapname)
 
     archive = zipfile.ZipFile(archive_name, mode="w", allowZip64=True)
 
@@ -104,7 +104,7 @@ def packager():
             archive.write(os.path.join(dirname, filename), os.path.join(dirname, filename), zipfile.ZIP_DEFLATED)
 
     archive.close()
-    os.chdir('/home/elementary/Documents/PDFMaps/')
+    os.chdir(path)
     print('OK')
 
 
@@ -119,16 +119,16 @@ if __name__ == '__main__':
 
     # General configuration
     path = os.path.dirname(os.path.realpath(__file__))
-    volume = "/media/Data"
+    volume = "/media/DATA"
     vrt_25 = "{0}/IGN/scan25.vrt".format(volume)
     vrt_100 = "{0}/IGN/scan100.vrt".format(volume)
 
     # Run specific configuration
-    mapname = 'forcalquier'
-    xmin = 900000
-    ymin = 6300000
-    xmax = 950000
-    ymax = 6350000
+    mapname = 'sommieres'
+    xmin = 730000
+    ymin = 6280000
+    xmax = 770000
+    ymax = 6320000
 
     try:
         os.mkdir('temp/{0}'.format(mapname))

@@ -35,12 +35,12 @@ def level_renderer(level, scale, resampling, source):
     print('OK')
 
     print('\nSuppression des fichiers annexes...')
-    os.remove('temp/out{}.tif'.format(scale))
-    os.remove('temp/out{}.png.aux.xml'.format(scale))
+    os.remove('temp/out{0}.tif'.format(scale))
+    os.remove('temp/out{0}.png.aux.xml'.format(scale))
     print('OK')
 
     print('\nCréation des tuiles...')
-    raster = Image.open('temp/out{}.png'.format(scale))
+    raster = Image.open('temp/out{0}.png'.format(scale))
 
     WIDTH, HEIGHT = raster.size
     width = (WIDTH // 256) * 256
@@ -63,6 +63,7 @@ def level_renderer(level, scale, resampling, source):
         b += 1
     tiler(raster, x + 256, y + 256, level, a, b, W, H)
     print('OK')
+    os.system('rm temp/out{0}.png'.format(scale))
 
 
 def georeferencer():
@@ -104,14 +105,8 @@ def packager():
             archive.write(os.path.join(dirname, filename), os.path.join(dirname, filename), zipfile.ZIP_DEFLATED)
 
     archive.close()
+    os.system('rm -R {0}/temp/{1}'.format(path, mapname))
     os.chdir(path)
-    print('OK')
-
-
-def cleaner():
-    print('\nNettoyage')
-    os.system('rm out*.png')
-    os.system('rm -R temp/{0}'.format(mapname))
     print('OK')
 
 
@@ -124,11 +119,11 @@ if __name__ == '__main__':
     vrt_100 = "{0}/IGN/scan100.vrt".format(volume)
 
     # Run specific configuration
-    mapname = 'sommieres'
-    xmin = 730000
-    ymin = 6280000
-    xmax = 770000
-    ymax = 6320000
+    mapname = 'lablachere'
+    xmin = 770000
+    ymin = 6360000
+    xmax = 810000
+    ymax = 6400000
 
     try:
         os.mkdir('temp/{0}'.format(mapname))
@@ -141,7 +136,6 @@ if __name__ == '__main__':
         georeferencer()
         thumbler()
         packager()
-        # cleaner()
 
     except KeyboardInterrupt:
         sys.exit(1)

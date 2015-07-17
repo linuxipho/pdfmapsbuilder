@@ -24,13 +24,13 @@ def level_renderer(level, scale, resampling, source):
     :return:
     """
     print('\nExtracting level {0} @ 1:{1}.000 scale...'.format(level, scale))
-    extraction = 'gdalwarp -q -of GTiff -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'.format(
+    extraction = 'gdalwarp -of GTiff -co COMPRESS=LZW -co BIGTIFF=YES -te {0} {1} {2} {3} -tr {4} {4} -r {5} -multi -wm 2048 {6} temp/out{7}.tif'.format(
         xmin, ymin, xmax, ymax, scale / 10.0, resampling, source, scale)
     os.system(extraction)
     print('OK')
 
     print('\nConversion au format PNG...')
-    conversion = 'gdal_translate -q -of PNG -co ZLEVEL=1 temp/out{0}.tif temp/out{0}.png'.format(scale)
+    conversion = 'gdal_translate -of PNG -co ZLEVEL=1 temp/out{0}.tif temp/out{0}.png'.format(scale)
     os.system(conversion)
     print('OK')
 

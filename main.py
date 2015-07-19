@@ -89,7 +89,7 @@ def thumbler():
     img = Image.open('tiles/2x2x2.png')
     extent = (0, 0, 128, 128)
     thumb = img.crop(extent)
-    thumb.save('thumb.small.png')
+    thumb.save('thumb.png')
     print('OK')
 
 
@@ -119,11 +119,11 @@ if __name__ == '__main__':
     vrt_100 = "{0}/IGN/scan100.vrt".format(volume)
 
     # Run specific configuration
-    mapname = 'lablachere'
-    xmin = 770000
-    ymin = 6360000
-    xmax = 810000
-    ymax = 6400000
+    mapname = 'vallorcine'
+    xmin = 970000
+    ymin = 6520000
+    xmax = 1010000
+    ymax = 6560000
 
     try:
         os.mkdir('temp/{0}'.format(mapname))

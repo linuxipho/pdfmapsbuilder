@@ -114,16 +114,16 @@ if __name__ == '__main__':
 
     # General configuration
     path = os.path.dirname(os.path.realpath(__file__))
-    volume = "/media/DATA"
+    volume = "/media/remi/DATA"
     vrt_25 = "{0}/IGN/scan25.vrt".format(volume)
     vrt_100 = "{0}/IGN/scan100.vrt".format(volume)
 
     # Run specific configuration
-    mapname = 'vallorcine'
-    xmin = 970000
-    ymin = 6520000
-    xmax = 1010000
-    ymax = 6560000
+    mapname = 'sommieres'
+    xmin = 770000
+    ymin = 6280000
+    xmax = 810000
+    ymax = 6320000
 
     try:
         os.mkdir('temp/{0}'.format(mapname))

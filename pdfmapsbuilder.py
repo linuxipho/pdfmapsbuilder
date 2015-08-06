@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import shutil
+import zipfile
 
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
@@ -92,21 +93,24 @@ if __name__ == '__main__':
     scan_100 = '{0}/IGN/scan100.vrt'.format(volume)
 
     if os.path.ismount(volume) is False:
-        sys.exit('Error: DATA volume is not mounted')
+        sys.exit('Error: DATA volume is not mounted.')
 
     if os.path.exists(scan_25) is False or os.path.exists(scan_100) is False:
-        sys.exit('Error: At least on raster source path is invalid')
+        sys.exit('Error: At least on raster source path is invalid.')
 
     params = sys.argv
 
     if len(params) < 6:
-        sys.exit('Error: Need at least 5 parameters\n$> pdfmapsbuilder.py XMIN(int) YMIN(int) XMAX(int) YMAX(int) Title(str) Upload(bool)')
+        sys.exit('Error: Need at least 5 parameters.\n$> pdfmapsbuilder.py XMIN(int) YMIN(int) XMAX(int) YMAX(int) Title(str) Upload(bool)')
 
-    xmin = params[1]
-    ymin = params[2]
-    xmax = params[3]
-    ymax = params[4]
+    xmin = int(params[1])
+    ymin = int(params[2])
+    xmax = int(params[3])
+    ymax = int(params[4])
     mapname = params[5]
+
+    if xmin < 90000 or xmax > 1250000 or ymin < 6040000 or ymax > 7120000 or xmin > xmax or ymin > ymax:
+        sys.exit('Error: Invalid Bounding Box.')
 
     cwd = os.path.dirname(os.path.realpath(__file__))
     tmp_dir = '{0}/temp_{1}'.format(cwd, time.time())

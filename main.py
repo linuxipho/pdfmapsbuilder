@@ -119,11 +119,11 @@ if __name__ == '__main__':
     vrt_100 = "{0}/IGN/scan100.vrt".format(volume)
 
     # Run specific configuration
-    mapname = 'sommieres'
-    xmin = 770000
-    ymin = 6280000
-    xmax = 810000
-    ymax = 6320000
+    mapname = 'beziers'
+    xmin = 690000
+    ymin = 6240000
+    xmax = 730000
+    ymax = 6280000
 
     try:
         os.mkdir('temp/{0}'.format(mapname))

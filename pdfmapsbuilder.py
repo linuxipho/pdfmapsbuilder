@@ -5,9 +5,34 @@ import sys
 import time
 import shutil
 import zipfile
+import psycopg2
+
+from configparser import ConfigParser
 
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
+
+
+def read_db_config(filename='config.ini', section='postgresql'):
+    """ Read database configuration file and return a dictionary object
+    :param filename: name of the configuration file
+    :param section: section of database configuration
+    :return: a dictionary of database parameters
+    """
+    # create parser and read ini configuration file
+    parser = ConfigParser()
+    parser.read(filename)
+
+    # get section, default to mysql
+    db = {}
+    if parser.has_section(section):
+        items = parser.items(section)
+        for item in items:
+            db[item[0]] = item[1]
+    else:
+        raise Exception('{0} not found in the {1} file'.format(section, filename))
+
+    return db
 
 
 def tiler(src, j, i, l, a, b, xend, yend):
@@ -17,7 +42,7 @@ def tiler(src, j, i, l, a, b, xend, yend):
 
 
 def level_renderer(level, scale, resampling, source):
-    """
+    """ Render pdfmaps level according given parameters
     :param level: pdfmaps level
     :param scale: real scale
     :param resampling: pixel resampling methode
@@ -98,40 +123,62 @@ if __name__ == '__main__':
     if os.path.exists(scan_25) is False or os.path.exists(scan_100) is False:
         sys.exit('Error: At least on raster source path is invalid.')
 
+    try:
+        DSN = read_db_config()
+    except IOError as err:
+        print("I/O error: {0}".format(err))
+        sys.exit()
+
     params = sys.argv
 
-    if len(params) < 6:
-        sys.exit('Error: Need at least 5 parameters.\n$> pdfmapsbuilder.py XMIN(int) YMIN(int) XMAX(int) YMAX(int) Title(str) Upload(bool)')
+    #
+    # if len(params) < 6:
+    #     sys.exit('Error: Need at least 5 parameters.\n$> pdfmapsbuilder.py XMIN(int) YMIN(int) XMAX(int) YMAX(int) Title(str) Upload(bool)')
+    #
+    # xmin = int(params[1])
+    # ymin = int(params[2])
+    # xmax = int(params[3])
+    # ymax = int(params[4])
 
-    xmin = int(params[1])
-    ymin = int(params[2])
-    xmax = int(params[3])
-    ymax = int(params[4])
-    mapname = params[5]
+    # if xmin < 90000 or xmax > 1250000 or ymin < 6040000 or ymax > 7120000 or xmin > xmax or ymin > ymax:
+    #   sys.exit('Error: Invalid Bounding Box.')
 
-    if xmin < 90000 or xmax > 1250000 or ymin < 6040000 or ymax > 7120000 or xmin > xmax or ymin > ymax:
-        sys.exit('Error: Invalid Bounding Box.')
+    if len(params) != 2:
+        sys.exit('Error: pdfmapsbuilder.py need one parameter <tile_id>')
+
+    mapid = str(params[1])
+    SQL = 'SELECT * FROM grid WHERE gid={};'.format(mapid)
+    print(SQL)
+
+    with psycopg2.connect(**DSN) as conn:
+        with conn.cursor() as curs:
+            curs.execute(SQL)
+            bbox = curs.fetchone()
+
+    mapname = int(bbox[1])
+    xmin = int(bbox[2])
+    ymin = int(bbox[4])
+    xmax = int(bbox[3])
+    ymax = int(bbox[5])
 
     cwd = os.path.dirname(os.path.realpath(__file__))
-    tmp_dir = '{0}/temp_{1}'.format(cwd, time.time())
-    map_dir = '{0}/{1}'.format(tmp_dir, params[5])
-    tiles_dir = '{0}/tiles'.format(map_dir)
+    tmp_dir = '{}/temp_{}'.format(cwd, time.time())
+    map_dir = '{}/{}'.format(tmp_dir, mapname)
+    tiles_dir = '{}/tiles'.format(map_dir)
 
     try:
         os.mkdir(tmp_dir)
         os.mkdir(map_dir)
         os.mkdir(tiles_dir)
 
-        level_renderer(2, 25, 'near', scan_25)
-        level_renderer(1, 50, 'lanczos', scan_25)
-        level_renderer(0, 100, 'lanczos', scan_100)
-
-        georeferencer()
-        thumbler()
-        packager()
+        # level_renderer(2, 25, 'near', scan_25)
+        # level_renderer(1, 50, 'lanczos', scan_25)
+        # level_renderer(0, 100, 'lanczos', scan_100)
+        #
+        # georeferencer()
+        # thumbler()
+        # packager()
 
     finally:
         shutil.rmtree(tmp_dir)
         print('this is the end...')
-
-

@@ -154,8 +154,9 @@ if __name__ == '__main__':
         with conn.cursor() as curs:
             curs.execute(SQL)
             bbox = curs.fetchone()
+            print(bbox)
 
-    mapname = int(bbox[1])
+    mapname = str(bbox[1])
     xmin = int(bbox[2])
     ymin = int(bbox[4])
     xmax = int(bbox[3])

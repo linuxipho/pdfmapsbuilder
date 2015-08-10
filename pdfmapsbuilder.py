@@ -88,7 +88,7 @@ def packager():
 
 if __name__ == '__main__':
 
-    volume = '/media/remi/DATA'
+    volume = '/media/remi/Data'
     scan_25 = '{0}/IGN/scan25.vrt'.format(volume)
     scan_100 = '{0}/IGN/scan100.vrt'.format(volume)
 
@@ -129,7 +129,6 @@ if __name__ == '__main__':
         georeferencer()
         thumbler()
         packager()
-
 
     finally:
         shutil.rmtree(tmp_dir)

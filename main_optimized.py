@@ -3,7 +3,15 @@ __author__ = 'remi'
 from osgeo import gdal
 from gdalconst import *
 
-print(gdal.__version__)
+print("Using GDAL %s" % gdal.__version__)
+
+src_vrt = gdal.Open("/media/remi/Data/IGN/scan25.vrt", GA_ReadOnly)
+driver = gdal.GetDriverByName("VRT")
+tmp_vrt = driver.CreateCopy("", src_vrt, 0)
+
+
+gdal.VSIFOpenL()
+
 
 in_dataset = gdal.Open("/media/remi/Data/IGN/scan25.vrt", GA_ReadOnly)
 driver = gdal.GetDriverByName("PNG")

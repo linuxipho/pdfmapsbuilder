@@ -155,16 +155,14 @@ if __name__ == '__main__':
 
     mapid = str(params[1])
     SQL = 'SELECT * FROM grid WHERE gid={};'.format(mapid)
-    print(SQL)
 
     with psycopg2.connect(**DSN) as conn:
         with conn.cursor() as curs:
             curs.execute(SQL)
             bbox = curs.fetchone()
-            print(bbox)
 
-    mapname = remove_accents(str(bbox[1]).lower())
-    print(mapname)
+    maptitle = str(bbox[1])
+    mapname = remove_accents(maptitle.lower())
     xmin = int(bbox[2])
     ymin = int(bbox[4])
     xmax = int(bbox[3])
@@ -176,6 +174,8 @@ if __name__ == '__main__':
     tiles_dir = '{}/tiles'.format(map_dir)
 
     try:
+
+        print('Processing {} map ...'.format(maptitle))
         os.mkdir(tmp_dir)
         os.mkdir(map_dir)
         os.mkdir(tiles_dir)

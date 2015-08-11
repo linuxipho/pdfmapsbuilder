@@ -6,6 +6,7 @@ import time
 import shutil
 import zipfile
 import psycopg2
+import unicodedata
 
 from configparser import ConfigParser
 
@@ -33,6 +34,11 @@ def read_db_config(filename='config.ini', section='postgresql'):
         raise Exception('{0} not found in the {1} file'.format(section, filename))
 
     return db
+
+
+def remove_accents(input_str):
+    nkfd_form = unicodedata.normalize('NFKD', input_str)
+    return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 
 def tiler(src, j, i, l, a, b, xend, yend):
@@ -100,7 +106,8 @@ def thumbler():
 
 def packager():
     os.chdir(map_dir)
-    archive_name = '../../{0}.zip'.format(mapname)
+    archive_name = '../../{0}.zip'.format(mapname.title())
+    print(archive_name)
 
     archive = zipfile.ZipFile(archive_name, mode="w", allowZip64=True)
 
@@ -156,7 +163,8 @@ if __name__ == '__main__':
             bbox = curs.fetchone()
             print(bbox)
 
-    mapname = str(bbox[1])
+    mapname = remove_accents(str(bbox[1]).lower())
+    print(mapname)
     xmin = int(bbox[2])
     ymin = int(bbox[4])
     xmax = int(bbox[3])
@@ -172,13 +180,13 @@ if __name__ == '__main__':
         os.mkdir(map_dir)
         os.mkdir(tiles_dir)
 
-        # level_renderer(2, 25, 'near', scan_25)
-        # level_renderer(1, 50, 'lanczos', scan_25)
-        # level_renderer(0, 100, 'lanczos', scan_100)
-        #
-        # georeferencer()
-        # thumbler()
-        # packager()
+        level_renderer(2, 25, 'near', scan_25)
+        level_renderer(1, 50, 'lanczos', scan_25)
+        level_renderer(0, 100, 'lanczos', scan_100)
+
+        georeferencer()
+        thumbler()
+        packager()
 
     finally:
         shutil.rmtree(tmp_dir)

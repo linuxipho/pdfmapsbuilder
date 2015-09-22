@@ -1,5 +1,3 @@
-__author__ = 'remi'
-
 import os
 import sys
 import time
@@ -11,6 +9,7 @@ import unicodedata
 from configparser import ConfigParser
 
 from PIL import Image
+
 Image.MAX_IMAGE_PIXELS = None
 
 
@@ -55,7 +54,7 @@ def level_renderer(level, scale, resampling, source):
     :param source: current dataset source
     """
 
-    conversion = 'gdal_translate -of PNG -co ZLEVEL=1 -projwin {0} {3} {2} {1} -tr {4} {4} -r {5} {6} {7}/out{8}.png'\
+    conversion = 'gdal_translate -of PNG -co ZLEVEL=1 -projwin {0} {3} {2} {1} -tr {4} {4} -r {5} {6} {7}/out{8}.png' \
         .format(xmin, ymin, xmax, ymax, scale / 10.0, resampling, source, tmp_dir, scale)
     os.system(conversion)
 

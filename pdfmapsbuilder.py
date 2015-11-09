@@ -3,7 +3,7 @@ import sys
 import time
 import shutil
 import zipfile
-import psycopg2
+import psycopg2  # need 2.6
 import unicodedata
 
 from configparser import ConfigParser
@@ -48,10 +48,10 @@ def tiler(src, j, i, l, a, b, xend, yend):
 
 def level_renderer(level, scale, resampling, source):
     """ Render pdfmaps level according given parameters
-    :param level: pdfmaps level
+    :param level: pdfmaps level 0 1 2
     :param scale: real scale
-    :param resampling: pixel resampling methode
-    :param source: current dataset source
+    :param resampling: pixel resampling methode (near, bilinear, bicubic, lanczos)
+    :param source: current working on dataset source
     """
 
     conversion = 'gdal_translate -of PNG -co ZLEVEL=1 -projwin {0} {3} {2} {1} -tr {4} {4} -r {5} {6} {7}/out{8}.png' \
@@ -83,6 +83,10 @@ def level_renderer(level, scale, resampling, source):
 
 
 def georeferencer():
+    """ Calculate georeference info for level 2
+    :return: create map reference file
+    """
+
     proj = 'PROJCS["RGF93 / Lambert-93",GEOGCS["RGF93",DATUM["Reseau_Geodesique_Francais_1993",SPHEROID["GRS 1980",6378137,298.2572221010002,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6171"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433],AUTHORITY["EPSG","4171"]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["standard_parallel_1",49],PARAMETER["standard_parallel_2",44],PARAMETER["latitude_of_origin",46.5],PARAMETER["central_meridian",3],PARAMETER["false_easting",700000],PARAMETER["false_northing",6600000],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AUTHORITY["EPSG","2154"]]'
     width = (xmax - xmin) / 5
     height = (ymax - ymin) / 5
@@ -105,10 +109,7 @@ def thumbler():
 
 def packager():
     os.chdir(map_dir)
-    archive_name = '../../{0}.zip'.format(mapname.title())
-    print(archive_name)
-
-    archive = zipfile.ZipFile(archive_name, mode="w", allowZip64=True)
+    archive = zipfile.ZipFile(zip_file, mode="w", allowZip64=True)
 
     for dirname, subdirs, files in os.walk("."):
         for filename in files:
@@ -137,44 +138,32 @@ if __name__ == '__main__':
 
     params = sys.argv
 
-    #
-    # if len(params) < 6:
-    #     sys.exit('Error: Need at least 5 parameters.\n$> pdfmapsbuilder.py XMIN(int) YMIN(int) XMAX(int) YMAX(int) Title(str) Upload(bool)')
-    #
-    # xmin = int(params[1])
-    # ymin = int(params[2])
-    # xmax = int(params[3])
-    # ymax = int(params[4])
-
-    # if xmin < 90000 or xmax > 1250000 or ymin < 6040000 or ymax > 7120000 or xmin > xmax or ymin > ymax:
-    #   sys.exit('Error: Invalid Bounding Box.')
-
     if len(params) != 2:
         sys.exit('Error: pdfmapsbuilder.py need one parameter <tile_id>')
 
     mapid = str(params[1])
-    SQL = 'SELECT * FROM grid WHERE gid={};'.format(mapid)
+    SQL = "SELECT * FROM grid WHERE id={};".format(mapid)
 
     with psycopg2.connect(**DSN) as conn:
         with conn.cursor() as curs:
             curs.execute(SQL)
             bbox = curs.fetchone()
 
-    maptitle = str(bbox[1])
+    maptitle = str(bbox[6])
     mapname = remove_accents(maptitle.lower())
-    xmin = int(bbox[2])
-    ymin = int(bbox[4])
-    xmax = int(bbox[3])
-    ymax = int(bbox[5])
+    xmin = int(bbox[2]-1000)
+    ymin = int(bbox[4]-1000)
+    xmax = int(bbox[3]+1000)
+    ymax = int(bbox[5]+1000)  # on chevauche sur 2km
 
     cwd = os.path.dirname(os.path.realpath(__file__))
-    tmp_dir = '{}/temp_{}'.format(cwd, time.time())
-    map_dir = '{}/{}'.format(tmp_dir, mapname)
-    tiles_dir = '{}/tiles'.format(map_dir)
+    tmp_dir = '{0}/temp_{1}'.format(cwd, time.time())
+    map_dir = '{0}/{1}'.format(tmp_dir, mapname)
+    tiles_dir = '{0}/tiles'.format(map_dir)
+    zip_file = '{0}/{1}.zip'.format(cwd, mapname.title())
 
     try:
-
-        print('Processing {} map ...'.format(maptitle))
+        print('Processing {0} map ...'.format(maptitle))
         os.mkdir(tmp_dir)
         os.mkdir(map_dir)
         os.mkdir(tiles_dir)
@@ -189,4 +178,6 @@ if __name__ == '__main__':
 
     finally:
         shutil.rmtree(tmp_dir)
+        exp_dir = "{0}/PDFMaps/{1}.zip".format(volume, mapname.title())
+        shutil.move(zip_file, exp_dir)
         print('this is the end...')

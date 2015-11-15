@@ -3,7 +3,7 @@ import sys
 import time
 import shutil
 import zipfile
-import psycopg2  # need 2.6
+import psycopg2  # starting 2.5
 import unicodedata
 
 from configparser import ConfigParser
@@ -84,7 +84,7 @@ def level_renderer(level, scale, resampling, source):
 
 def georeferencer():
     """ Calculate georeference info for level 2
-    :return: create map reference file
+    :return: a map reference file (.ref)
     """
 
     proj = 'PROJCS["RGF93 / Lambert-93",GEOGCS["RGF93",DATUM["Reseau_Geodesique_Francais_1993",SPHEROID["GRS 1980",6378137,298.2572221010002,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6171"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433],AUTHORITY["EPSG","4171"]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["standard_parallel_1",49],PARAMETER["standard_parallel_2",44],PARAMETER["latitude_of_origin",46.5],PARAMETER["central_meridian",3],PARAMETER["false_easting",700000],PARAMETER["false_northing",6600000],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AUTHORITY["EPSG","2154"]]'
@@ -101,6 +101,9 @@ def georeferencer():
 
 
 def thumbler():
+    """ Crop thumb from arbitrary chosen 2x2x2.png tile
+    :return: a 128x128 PNG thumb
+    """
     img = Image.open('{0}/2x2x2.png'.format(tiles_dir))
     extent = (0, 0, 128, 128)
     thumb = img.crop(extent)
@@ -142,11 +145,11 @@ if __name__ == '__main__':
         sys.exit('Error: pdfmapsbuilder.py need one parameter <tile_id>')
 
     mapid = str(params[1])
-    SQL = "SELECT * FROM grid WHERE id={};".format(mapid)
+    SQL = "SELECT * FROM grid WHERE id=%s;"
 
     with psycopg2.connect(**DSN) as conn:
         with conn.cursor() as curs:
-            curs.execute(SQL)
+            curs.execute(SQL, mapid)
             bbox = curs.fetchone()
 
     maptitle = str(bbox[6])
